@@ -1,0 +1,8 @@
+# Local editor / OS files
+.vscode/
+.DS_Store
+Thumbs.db
+# Keep private source workbooks out of public repositories
+*.xlsx
+*.xls
+*.csv

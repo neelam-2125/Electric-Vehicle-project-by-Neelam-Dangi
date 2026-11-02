@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interactive electric vehicle market performance and insights dashboard." />
+  <title>EVision | Market Insights</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="EVision home">
+        <span class="brand-mark">⚡</span><span>EV<span class="brand-light">ision</span></span>
+      </a>
+      <div class="side-label">WORKSPACE</div>
+      <nav class="nav">
+        <button class="nav-link active" data-view="overview"><span>▦</span> Market overview</button>
+        <button class="nav-link" data-view="technology"><span>◈</span> Battery & efficiency</button>
+        <button class="nav-link" data-view="environment"><span>◎</span> Environment</button>
+        <button class="nav-link" data-view="data"><span>▤</span> Dataset</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="upload-mini">
+          <div class="upload-mini-icon">↑</div>
+          <strong>Use your own data</strong>
+          <p>Upload your Excel workbook to refresh every chart.</p>
+          <label class="mini-upload-btn" for="excelFile">Upload Excel</label>
+        </div>
+        <div class="profile">
+          <div class="avatar">ND</div>
+          <div><strong>EV Analyst</strong><small>Project workspace</small></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb">Workspace <span>/</span> <strong id="crumb">Market overview</strong></div>
+        <div class="top-actions">
+          <span class="status-dot"></span><span class="status-text" id="dataStatus">Waiting for Excel data</span>
+          <label class="upload-btn" for="excelFile">＋ Upload dataset</label>
+          <input id="excelFile" type="file" accept=".xlsx,.xls,.csv" hidden />
+        </div>
+      </header>
+
+      <section class="page-heading">
+        <div>
+          <div class="eyebrow">ELECTRIC MOBILITY ANALYTICS</div>
+          <h1 id="pageTitle">EV Market Performance <span>& Insights</span></h1>
+          <p id="pageSubtitle">A clear view of sales, vehicle performance and the changing electric mobility landscape.</p>
+        </div>
+        <div class="heading-chip"><span class="pulse"></span> Interactive dashboard</div>
+      </section>
+
+      <section class="upload-notice" id="uploadNotice">
+        <div class="notice-icon">↥</div>
+        <div class="notice-copy">
+          <strong>Start with your Excel dataset</strong>
+          <p>Upload your .xlsx or .xls file. The dashboard will read the first worksheet and build charts from the columns it can recognise.</p>
+        </div>
+        <label class="notice-button" for="excelFile">Choose Excel file</label>
+      </section>
+
+      <section class="filter-row">
+        <div class="filter-intro"><span class="filter-icon">⌁</span><span>Dashboard filters</span></div>
+        <label>Vehicle category
+          <select id="categoryFilter"><option value="all">All categories</option></select>
+        </label>
+        <label>Country / region
+          <select id="countryFilter"><option value="all">All countries</option></select>
+        </label>
+        <button id="resetFilters" class="reset-btn">Reset filters ↺</button>
+      </section>
+
+      <section class="view-panel active" id="overview">
+        <div class="section-top"><div><div class="eyebrow">MARKET SNAPSHOT</div><h2>Performance at a glance</h2></div><span class="section-note">Key performance indicators</span></div>
+        <div class="kpi-grid">
+          <article class="kpi-card accent-card"><div class="kpi-top"><span>Total sales units</span><span class="kpi-icon">↗</span></div><div class="kpi-value" id="kpiSales">—</div><div class="kpi-foot">Annual EV sales units</div></article>
+          <article class="kpi-card"><div class="kpi-top"><span>Average vehicle price</span><span class="kpi-icon">＄</span></div><div class="kpi-value" id="kpiPrice">—</div><div class="kpi-foot">Average listed price</div></article>
+          <article class="kpi-card"><div class="kpi-top"><span>Average driving range</span><span class="kpi-icon">⌁</span></div><div class="kpi-value" id="kpiRange">—</div><div class="kpi-foot">Kilometres per charge</div></article>
+          <article class="kpi-card"><div class="kpi-top"><span>CO₂ saved</span><span class="kpi-icon">♧</span></div><div class="kpi-value" id="kpiCO2">—</div><div class="kpi-foot">Annual estimated savings</div></article>
+        </div>
+        <div class="chart-grid">
+          <article class="chart-card span-2"><div class="chart-heading"><div><h3>EV sales by country</h3><p>Compare annual sales across markets</p></div><span class="chart-tag">COUNTRY</span></div><div class="chart-wrap"><canvas id="countryChart"></canvas><div class="empty-chart">Upload your Excel dataset to display this chart.</div></div></article>
+          <article class="chart-card"><div class="chart-heading"><div><h3>Sales by vehicle category</h3><p>Share of total sales units</p></div><span class="chart-tag">CATEGORY</span></div><div class="chart-wrap"><canvas id="categoryChart"></canvas><div class="empty-chart">Waiting for data</div></div></article>
+          <article class="chart-card"><div class="chart-heading"><div><h3>Driving range distribution</h3><p>Average range by vehicle category</p></div><span class="chart-tag">RANGE</span></div><div class="chart-wrap"><canvas id="rangeChart"></canvas><div class="empty-chart">Waiting for data</div></div></article>
+          <article class="chart-card"><div class="chart-heading"><div><h3>3-year retained value</h3><p>Average retained value by category</p></div><span class="chart-tag">VALUE</span></div><div class="chart-wrap"><canvas id="retainedChart"></canvas><div class="empty-chart">Waiting for data</div></div></article>
+        </div>
+      </section>
+
+      <section class="view-panel" id="technology">
+        <div class="section-top"><div><div class="eyebrow">POWERING THE FUTURE</div><h2>Battery technology & efficiency</h2></div><span class="section-note">Technology insights</span></div>
+        <div class="kpi-grid compact-kpis">
+          <article class="kpi-card"><div class="kpi-top"><span>Battery types</span><span class="kpi-icon">◈</span></div><div class="kpi-value" id="kpiBatteryTypes">—</div><div class="kpi-foot">Technologies in dataset</div></article>
+          <article class="kpi-card"><div class="kpi-top"><span>Avg. battery capacity</span><span class="kpi-icon">▰</span></div><div class="kpi-value" id="kpiCapacity">—</div><div class="kpi-foot">kWh, where available</div></article>
+          <article class="kpi-card"><div class="kpi-top"><span>Avg. cycle life</span><span class="kpi-icon">⟳</span></div><div class="kpi-value" id="kpiCycle">—</div><div class="kpi-foot">Battery charge cycles</div></article>
+        </div>
+        <div class="chart-grid">
+          <article class="chart-card span-2"><div class="chart-heading"><div><h3>Sales trend over time</h3><p>Annual EV sales by model year</p></div><span class="chart-tag">TREND</span></div><div class="chart-wrap tall"><canvas id="trendChart"></canvas><div class="empty-chart">Waiting for data</div></div></article>
+          <article class="chart-card"><div class="chart-heading"><div><h3>Battery technology comparison</h3><p>Sales units by battery type</p></div><span class="chart-tag">BATTERY</span></div><div class="chart-wrap tall"><canvas id="batteryChart"></canvas><div class="empty-chart">Waiting for data</div></div></article>
+        </div>
+      </section>
+
+      <section class="view-panel" id="environment">
+        <div class="section-top"><div><div class="eyebrow">SUSTAINABLE MOBILITY</div><h2>Environmental impact</h2></div><span class="section-note">ESG overview</span></div>
+        <div class="kpi-grid compact-kpis">
+          <article class="kpi-card accent-card"><div class="kpi-top"><span>Total CO₂ saved</span><span class="kpi-icon">♧</span></div><div class="kpi-value" id="envCO2">—</div><div class="kpi-foot">Based on uploaded data</div></article>
+          <article class="kpi-card"><div class="kpi-top"><span>Regions represented</span><span class="kpi-icon">◎</span></div><div class="kpi-value" id="kpiRegions">—</div><div class="kpi-foot">Unique regions / countries</div></article>
+        </div>
+        <div class="chart-grid">
+          <article class="chart-card span-2"><div class="chart-heading"><div><h3>CO₂ savings by region</h3><p>Estimated annual emissions savings</p></div><span class="chart-tag">IMPACT</span></div><div class="chart-wrap tall"><canvas id="co2Chart"></canvas><div class="empty-chart">Waiting for data</div></div></article>
+          <article class="insight-card"><div class="insight-symbol">✦</div><div class="eyebrow">WHY IT MATTERS</div><h3>Cleaner journeys, smarter choices.</h3><p>Electric vehicles can reduce tailpipe emissions. This dashboard helps explore how adoption and vehicle technology relate to potential environmental benefits.</p><div class="insight-foot">Explore the data using the filters above.</div></article>
+        </div>
+      </section>
+
+      <section class="view-panel" id="data">
+        <div class="section-top"><div><div class="eyebrow">SOURCE WORKBOOK</div><h2>Dataset explorer</h2></div><span class="section-note" id="rowCount">0 rows loaded</span></div>
+        <article class="table-card">
+          <div class="table-toolbar"><div><h3>Preview of your Excel data</h3><p id="sheetName">No workbook uploaded yet</p></div><input id="tableSearch" type="search" placeholder="Search rows..." /></div>
+          <div class="table-scroll"><table><thead id="tableHead"><tr><th>Upload an Excel file to preview its columns</th></tr></thead><tbody id="tableBody"><tr><td class="table-empty">Your worksheet preview will appear here.</td></tr></tbody></table></div>
+        </article>
+      </section>
+
+      <footer><span>EVision · EV Market Performance & Insights</span><span>Built with HTML, CSS, JavaScript & Chart.js</span></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
